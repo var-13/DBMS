@@ -1,0 +1,108 @@
+{% extends 'layout.html' %}
+
+{% block title %}Destinations - Personalized Trip Planner{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4" data-aos="fade-up">Explore Destinations</h1>
+    
+    <!-- Search and Filter -->
+    <div class="card border-0 shadow-sm mb-4" data-aos="fade-up">
+        <div class="card-body p-4">
+            <form action="{{ url_for('destinations.index') }}" method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label for="search" class="form-label">Search</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" id="search" name="search" placeholder="Search destinations..." value="{{ request.args.get('search', '') }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label for="country" class="form-label">Country</label>
+                    <select class="form-select" id="country" name="country">
+                        <option value="">All Countries</option>
+                        <!-- Add country options dynamically -->
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="category" class="form-label">Category</label>
+                    <select class="form-select" id="category" name="category">
+                        <option value="">All Categories</option>
+                        <option value="beach">Beach</option>
+                        <option value="mountain">Mountain</option>
+                        <option value="city">City</option>
+                        <option value="countryside">Countryside</option>
+                        <option value="historical">Historical</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Destinations List -->
+    <div class="row g-4">
+        {% if destinations %}
+            {% for destination in destinations %}
+            <div class="col-md-4 mb-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+                <div class="card h-100 border-0 shadow-sm destination-card">
+                    <img src="{{ destination.image_url or 'https://images.unsplash.com/photo-1500835556837-99ac94a94552?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80' }}" 
+                         class="card-img-top" alt="{{ destination.name }}" 
+                         style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ destination.name }}</h5>
+                        <p class="card-text text-muted">
+                            <i class="fas fa-map-marker-alt me-1"></i> 
+                            {{ destination.city }}, {{ destination.country }}
+                        </p>
+                        {% if destination.description %}
+                        <p class="card-text small">{{ destination.description|truncate(100) }}</p>
+                        {% endif %}
+                        
+                        {% if destination.best_time_to_visit %}
+                        <p class="card-text small">
+                            <i class="fas fa-calendar-alt me-1"></i> 
+                            Best time: {{ destination.best_time_to_visit }}
+                        </p>
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <a href="{{ url_for('destinations.view', destination_id=destination.id) }}" class="btn btn-sm btn-outline-primary">View Details</a>
+                            <div class="text-warning">
+                                {% for i in range(5) %}
+                                    {% if destination.popularity and i < (destination.popularity / 20)|int %}
+                                    <i class="fas fa-star"></i>
+                                    {% else %}
+                                    <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
+                <h4>No destinations found</h4>
+                <p class="text-muted">Try adjusting your search criteria.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .destination-card {
+        transition: transform 0.3s ease;
+    }
+    
+    .destination-card:hover {
+        transform: translateY(-10px);
+    }
+</style>
+{% endblock %} 

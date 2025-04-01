@@ -1,0 +1,118 @@
+{% extends "layout.html" %}
+
+{% block title %}Create New Trip - Personalized Trip Planner{% endblock %}
+
+{% block styles %}
+<style>
+    .form-label {
+        font-weight: 500;
+    }
+    .form-text {
+        font-size: 0.85rem;
+    }
+    .required::after {
+        content: "*";
+        color: #dc3545;
+        margin-left: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm" data-aos="fade-up">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">Create New Trip</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('trips.create') }}">
+                        <div class="mb-4">
+                            <label for="title" class="form-label required">Trip Title</label>
+                            <input type="text" class="form-control" id="title" name="title" required
+                                   placeholder="e.g., Summer Vacation in Europe">
+                            <div class="form-text">Give your trip a descriptive name.</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"
+                                      placeholder="Describe your trip plans..."></textarea>
+                            <div class="form-text">Provide some details about your trip (optional).</div>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="start_date" class="form-label required">Start Date</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="end_date" class="form-label required">End Date</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" required>
+                            </div>
+                            <div class="form-text mt-2">Select the date range for your trip.</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="total_budget" class="form-label">Total Budget</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="total_budget" name="total_budget" 
+                                       step="0.01" min="0" placeholder="0.00">
+                            </div>
+                            <div class="form-text">Set an estimated budget for your entire trip (optional).</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_public" name="is_public">
+                                <label class="form-check-label" for="is_public">
+                                    Make this trip public
+                                </label>
+                            </div>
+                            <div class="form-text">Public trips can be viewed by other users.</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{{ url_for('trips.index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Create Trip
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Set minimum date for end_date based on start_date
+    document.getElementById('start_date').addEventListener('change', function() {
+        document.getElementById('end_date').min = this.value;
+        
+        // If end_date is before start_date, update it
+        if (document.getElementById('end_date').value < this.value) {
+            document.getElementById('end_date').value = this.value;
+        }
+    });
+    
+    // Set today as the minimum date for start_date
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('start_date').min = today;
+    
+    // Set default dates (today and tomorrow)
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+    
+    document.getElementById('start_date').value = today;
+    document.getElementById('end_date').value = tomorrowStr;
+    document.getElementById('end_date').min = today;
+</script>
+{% endblock %} 

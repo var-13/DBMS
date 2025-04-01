@@ -1,0 +1,216 @@
+{% extends "layout.html" %}
+
+{% block title %}My Profile - Personalized Trip Planner{% endblock %}
+
+{% block styles %}
+<style>
+    .profile-header {
+        background-color: #f8f9fa;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0.5rem;
+    }
+    .profile-picture {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid white;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .profile-picture-placeholder {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: #adb5bd;
+        border: 5px solid white;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .form-label {
+        font-weight: 500;
+    }
+    .form-text {
+        font-size: 0.85rem;
+    }
+    .stats-card {
+        transition: transform 0.3s ease;
+    }
+    .stats-card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-4">
+            <!-- Profile Sidebar -->
+            <div class="card shadow-sm mb-4" data-aos="fade-right">
+                <div class="card-body text-center">
+                    {% if current_user.profile_picture %}
+                        <img src="{{ current_user.profile_picture }}" alt="{{ current_user.username }}" class="profile-picture mb-3">
+                    {% else %}
+                        <div class="profile-picture-placeholder mb-3 mx-auto">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <h3 class="mb-0">{{ current_user.username }}</h3>
+                    {% if current_user.first_name and current_user.last_name %}
+                        <p class="text-muted">{{ current_user.first_name }} {{ current_user.last_name }}</p>
+                    {% endif %}
+                    
+                    <p class="text-muted">
+                        <i class="fas fa-envelope me-2"></i>{{ current_user.email }}
+                    </p>
+                    
+                    {% if current_user.phone_number %}
+                        <p class="text-muted">
+                            <i class="fas fa-phone me-2"></i>{{ current_user.phone_number }}
+                        </p>
+                    {% endif %}
+                    
+                    {% if current_user.city and current_user.country %}
+                        <p class="text-muted">
+                            <i class="fas fa-map-marker-alt me-2"></i>{{ current_user.city }}, {{ current_user.country }}
+                        </p>
+                    {% endif %}
+                    
+                    <p class="text-muted">
+                        <i class="fas fa-calendar-alt me-2"></i>Member since {{ current_user.created_at.strftime('%b %Y') }}
+                    </p>
+                </div>
+            </div>
+            
+            <!-- User Stats -->
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-1 g-4 mb-4">
+                <div class="col">
+                    <div class="card stats-card" data-aos="fade-up" data-aos-delay="100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-suitcase-rolling fa-2x text-primary mb-3"></i>
+                            <h5 class="card-title">My Trips</h5>
+                            <p class="card-text display-6">{{ current_user.trips.count() }}</p>
+                            <a href="{{ url_for('trips.index') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card stats-card" data-aos="fade-up" data-aos-delay="200">
+                        <div class="card-body text-center">
+                            <i class="fas fa-star fa-2x text-warning mb-3"></i>
+                            <h5 class="card-title">My Reviews</h5>
+                            <p class="card-text display-6">{{ current_user.reviews.count() }}</p>
+                            <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <!-- Profile Edit Form -->
+            <div class="card shadow-sm" data-aos="fade-left">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Edit Profile</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('auth.profile') }}">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="first_name" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" value="{{ current_user.first_name or '' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" value="{{ current_user.last_name or '' }}">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="bio" class="form-label">Bio</label>
+                            <textarea class="form-control" id="bio" name="bio" rows="3" placeholder="Tell us about yourself...">{{ current_user.bio or '' }}</textarea>
+                            <div class="form-text">Share a little about yourself, your travel interests, and preferences.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="phone_number" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone_number" name="phone_number" value="{{ current_user.phone_number or '' }}">
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label for="date_of_birth" class="form-label">Date of Birth</label>
+                                <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" value="{{ current_user.date_of_birth.strftime('%Y-%m-%d') if current_user.date_of_birth else '' }}">
+                            </div>
+                            <div class="col-md-8">
+                                <label for="address" class="form-label">Address</label>
+                                <input type="text" class="form-control" id="address" name="address" value="{{ current_user.address or '' }}">
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="city" class="form-label">City</label>
+                                <input type="text" class="form-control" id="city" name="city" value="{{ current_user.city or '' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="country" class="form-label">Country</label>
+                                <input type="text" class="form-control" id="country" name="country" value="{{ current_user.country or '' }}">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="profile_picture" class="form-label">Profile Picture URL</label>
+                            <input type="url" class="form-control" id="profile_picture" name="profile_picture" value="{{ current_user.profile_picture or '' }}">
+                            <div class="form-text">Enter a URL for your profile picture.</div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Password Change Section -->
+            <div class="card shadow-sm mt-4" data-aos="fade-left" data-aos-delay="100">
+                <div class="card-header bg-secondary text-white">
+                    <h4 class="mb-0">Change Password</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('auth.change_password') }}">
+                        <div class="mb-3">
+                            <label for="current_password" class="form-label">Current Password</label>
+                            <input type="password" class="form-control" id="current_password" name="current_password" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="new_password" class="form-label">New Password</label>
+                            <input type="password" class="form-control" id="new_password" name="new_password" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="confirm_password" class="form-label">Confirm New Password</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-secondary">
+                                <i class="fas fa-key me-2"></i> Change Password
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

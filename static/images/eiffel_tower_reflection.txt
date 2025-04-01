@@ -1,0 +1,2 @@
+This is a placeholder for the Eiffel Tower reflection image.
+In a real application, you would save the actual image file here. 

@@ -1,0 +1,181 @@
+{% extends 'layout.html' %}
+
+{% block title %}Dashboard - Personalized Trip Planner{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm bg-primary text-white" data-aos="fade-up">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <h2 class="fw-bold mb-1">Welcome back, {{ current_user.first_name or current_user.username }}!</h2>
+                            <p class="mb-0">Here's an overview of your trips and travel plans.</p>
+                        </div>
+                        <div class="ms-auto">
+                            <a href="{{ url_for('trips.create') }}" class="btn btn-light">
+                                <i class="fas fa-plus me-2"></i>Create New Trip
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stats Section -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3 mb-md-0" data-aos="fade-up" data-aos-delay="100">
+            <div class="card border-0 shadow-sm stat-card h-100">
+                <div class="card-body text-center p-4">
+                    <div class="stat-icon bg-primary text-white mx-auto">
+                        <i class="fas fa-suitcase fa-2x"></i>
+                    </div>
+                    <h3 class="fw-bold">{{ upcoming_trips|length }}</h3>
+                    <p class="text-muted mb-0">Upcoming Trips</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3 mb-md-0" data-aos="fade-up" data-aos-delay="200">
+            <div class="card border-0 shadow-sm stat-card h-100">
+                <div class="card-body text-center p-4">
+                    <div class="stat-icon bg-success text-white mx-auto">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                    <h3 class="fw-bold">{{ past_trips|length }}</h3>
+                    <p class="text-muted mb-0">Completed Trips</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3 mb-md-0" data-aos="fade-up" data-aos-delay="300">
+            <div class="card border-0 shadow-sm stat-card h-100">
+                <div class="card-body text-center p-4">
+                    <div class="stat-icon bg-info text-white mx-auto">
+                        <i class="fas fa-map-marked-alt fa-2x"></i>
+                    </div>
+                    <h3 class="fw-bold">{{ current_user.trips.count() }}</h3>
+                    <p class="text-muted mb-0">Total Destinations</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3" data-aos="fade-up" data-aos-delay="400">
+            <div class="card border-0 shadow-sm stat-card h-100">
+                <div class="card-body text-center p-4">
+                    <div class="stat-icon bg-warning text-white mx-auto">
+                        <i class="fas fa-star fa-2x"></i>
+                    </div>
+                    <h3 class="fw-bold">{{ reviews|length }}</h3>
+                    <p class="text-muted mb-0">Reviews Written</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Upcoming Trips Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="mb-3" data-aos="fade-up">Upcoming Trips</h3>
+            {% if upcoming_trips %}
+            <div class="row g-3">
+                {% for trip in upcoming_trips %}
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+                    <div class="card border-0 shadow-sm trip-card h-100">
+                        <div class="position-relative">
+                            <img src="{{ trip.cover_image or 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1035&q=80' }}" class="card-img-top" alt="{{ trip.title }}" style="height: 180px; object-fit: cover;">
+                            <div class="card-img-overlay d-flex flex-column justify-content-end">
+                                <h5 class="card-title text-white mb-0">{{ trip.title }}</h5>
+                                <p class="card-text text-white">{{ trip.start_date.strftime('%b %d') }} - {{ trip.end_date.strftime('%b %d, %Y') }}</p>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-{{ 'primary' if trip.status == 'planning' else 'success' }}">{{ trip.status|capitalize }}</span>
+                                <span class="trip-countdown" data-date="{{ trip.start_date }}">
+                                    {% set days_until = (trip.start_date - now.date()).days %}
+                                    {% if days_until > 0 %}
+                                        {{ days_until }}d
+                                    {% else %}
+                                        Trip has started!
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <p class="card-text text-muted small">
+                                <i class="fas fa-map-marker-alt me-1"></i>
+                                {% if trip.destinations %}
+                                    {{ trip.destinations|map(attribute='name')|join(', ') }}
+                                {% else %}
+                                    No destinations added yet
+                                {% endif %}
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <a href="{{ url_for('trips.view', trip_id=trip.id) }}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                <a href="{{ url_for('trips.edit', trip_id=trip.id) }}" class="btn btn-sm btn-link text-muted">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="card border-0 shadow-sm" data-aos="fade-up">
+                <div class="card-body p-4 text-center">
+                    <i class="fas fa-plane-departure fa-3x text-muted mb-3"></i>
+                    <h5>No upcoming trips</h5>
+                    <p class="text-muted">Start planning your next adventure!</p>
+                    <a href="{{ url_for('trips.create') }}" class="btn btn-primary">Create New Trip</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Notifications Section -->
+    {% if notifications %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="mb-3" data-aos="fade-up">Recent Notifications</h3>
+            <div class="card border-0 shadow-sm" data-aos="fade-up">
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% for notification in notifications %}
+                        <li class="list-group-item notification-item p-3 {{ 'bg-light' if not notification.is_read else '' }}">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="rounded-circle p-2 {{ 'bg-primary' if notification.notification_type == 'trip' else 'bg-info' }} text-white">
+                                        <i class="fas {{ notification.icon or 'fa-bell' }}"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="mb-1">{{ notification.title }}</h6>
+                                    <p class="mb-1 small">{{ notification.message }}</p>
+                                    <small class="text-muted">{{ notification.time_since }}</small>
+                                </div>
+                                <div class="flex-shrink-0 ms-2">
+                                    <button class="btn btn-sm btn-link text-muted notification-dismiss" data-id="{{ notification.id }}">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add current date to template for countdown calculations
+        window.now = new Date();
+    });
+</script>
+{% endblock %} 

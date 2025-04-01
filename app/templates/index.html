@@ -1,0 +1,196 @@
+{% extends 'layout.html' %}
+
+{% block title %}Home - Personalized Trip Planner{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section py-5 text-center text-white" style="background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80'); background-size: cover; background-position: center;">
+    <div class="container py-5">
+        <div class="row py-5">
+            <div class="col-lg-8 mx-auto">
+                <h1 class="display-4 fw-bold mb-4" data-aos="fade-up">Plan Your Perfect Trip</h1>
+                <p class="lead mb-4" data-aos="fade-up" data-aos-delay="200">Create personalized travel itineraries, manage accommodations, track expenses, and more with our comprehensive trip planning tools.</p>
+                <div data-aos="fade-up" data-aos-delay="400">
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('trips.create') }}" class="btn btn-primary btn-lg me-2">Create New Trip</a>
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-light btn-lg">Go to Dashboard</a>
+                    {% else %}
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg me-2">Get Started</a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5" data-aos="fade-up">Why Choose Our Trip Planner?</h2>
+        <div class="row g-4">
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-primary text-white rounded-circle mb-3 mx-auto" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-map-marked-alt fa-2x"></i>
+                        </div>
+                        <h4>Comprehensive Itineraries</h4>
+                        <p class="text-muted">Create detailed day-by-day itineraries with activities, accommodations, and transportation all in one place.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-primary text-white rounded-circle mb-3 mx-auto" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-wallet fa-2x"></i>
+                        </div>
+                        <h4>Budget Tracking</h4>
+                        <p class="text-muted">Keep track of all your travel expenses and stay within your budget with our expense management tools.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon bg-primary text-white rounded-circle mb-3 mx-auto" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-cloud-sun fa-2x"></i>
+                        </div>
+                        <h4>Weather Forecasts</h4>
+                        <p class="text-muted">Get real-time weather information for your destinations to help you pack and plan accordingly.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Destinations -->
+{% if featured_destinations %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5" data-aos="fade-up">Featured Destinations</h2>
+        <div class="row g-4">
+            {% for destination in featured_destinations %}
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+                <div class="card h-100 border-0 shadow-sm destination-card">
+                    <img src="{{ destination.image_url or 'https://images.unsplash.com/photo-1500835556837-99ac94a94552?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80' }}" class="card-img-top" alt="{{ destination.name }}" style="height: 200px; object-fit: cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ destination.name }}</h5>
+                        <p class="card-text text-muted">{{ destination.city }}, {{ destination.country }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="rating">
+                                {% for i in range(5) %}
+                                    {% if i < destination.average_rating|int %}
+                                    <i class="fas fa-star text-warning"></i>
+                                    {% else %}
+                                    <i class="far fa-star text-warning"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <a href="{{ url_for('destinations.view', destination_id=destination.id) }}" class="btn btn-sm btn-outline-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Recent Reviews -->
+{% if recent_reviews %}
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5" data-aos="fade-up">Recent Traveler Reviews</h2>
+        <div class="row g-4">
+            {% for review in recent_reviews %}
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex-shrink-0">
+                                <div class="avatar bg-primary text-white rounded-circle" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-0">{{ review.user.username }}</h6>
+                                <div class="text-warning">{{ review.star_rating|safe }}</div>
+                            </div>
+                        </div>
+                        <h5 class="card-title">{{ review.title }}</h5>
+                        <p class="card-text">{{ review.content|truncate(100) }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ review.review_date.strftime('%b %d, %Y') }}</small>
+                            <a href="#" class="btn btn-sm btn-link">Read More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Call to Action -->
+<section class="py-5 bg-primary text-white text-center">
+    <div class="container py-4">
+        <h2 class="mb-4" data-aos="fade-up">Ready to Start Planning Your Next Adventure?</h2>
+        <p class="lead mb-4" data-aos="fade-up" data-aos-delay="100">Join thousands of travelers who use our platform to create unforgettable trips.</p>
+        <div data-aos="fade-up" data-aos-delay="200">
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('trips.create') }}" class="btn btn-light btn-lg">Create New Trip</a>
+            {% else %}
+            <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg">Sign Up Now</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .hero-section {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+    }
+    
+    .destination-card {
+        transition: transform 0.3s ease;
+    }
+    
+    .destination-card:hover {
+        transform: translateY(-10px);
+    }
+    
+    .feature-icon {
+        transition: transform 0.3s ease;
+    }
+    
+    .card:hover .feature-icon {
+        transform: scale(1.1);
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Add some scroll animations
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate navbar on scroll
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('navbar-scrolled', 'shadow-sm');
+            } else {
+                navbar.classList.remove('navbar-scrolled', 'shadow-sm');
+            }
+        });
+    });
+</script>
+{% endblock %} 

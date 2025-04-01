@@ -1,0 +1,199 @@
+{% extends 'layout.html' %}
+
+{% block title %}{{ destination.name }} - Personalized Trip Planner{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Destination Header -->
+    <div class="row mb-5">
+        <div class="col-lg-8" data-aos="fade-right">
+            <h1 class="fw-bold mb-3">{{ destination.name }}</h1>
+            <p class="lead text-muted">
+                <i class="fas fa-map-marker-alt me-2"></i>{{ destination.city }}, {{ destination.country }}
+            </p>
+            {% if destination.best_time_to_visit %}
+            <p class="mb-0">
+                <i class="fas fa-calendar-alt me-2"></i><strong>Best time to visit:</strong> {{ destination.best_time_to_visit }}
+            </p>
+            {% endif %}
+        </div>
+        <div class="col-lg-4 text-lg-end" data-aos="fade-left">
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('trips.create', destination_id=destination.id) }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Add to Trip
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Destination Image and Info -->
+    <div class="row mb-5">
+        <div class="col-lg-8 mb-4 mb-lg-0" data-aos="fade-up">
+            <div class="card border-0 shadow-sm">
+                <img src="{{ destination.image_url or 'https://images.unsplash.com/photo-1500835556837-99ac94a94552?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80' }}" 
+                     class="card-img-top" alt="{{ destination.name }}" 
+                     style="height: 400px; object-fit: cover;">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-3">About {{ destination.name }}</h4>
+                    <p class="card-text">{{ destination.description or 'No description available.' }}</p>
+                    
+                    {% if destination.address %}
+                    <p class="mb-2">
+                        <i class="fas fa-map me-2"></i><strong>Address:</strong> {{ destination.address }}
+                    </p>
+                    {% endif %}
+                    
+                    {% if destination.timezone %}
+                    <p class="mb-2">
+                        <i class="fas fa-clock me-2"></i><strong>Timezone:</strong> {{ destination.timezone }}
+                    </p>
+                    {% endif %}
+                    
+                    {% if destination.language %}
+                    <p class="mb-2">
+                        <i class="fas fa-language me-2"></i><strong>Language:</strong> {{ destination.language }}
+                    </p>
+                    {% endif %}
+                    
+                    {% if destination.currency %}
+                    <p class="mb-2">
+                        <i class="fas fa-money-bill-wave me-2"></i><strong>Currency:</strong> {{ destination.currency }}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-3">Weather</h4>
+                    {% if destination.weather %}
+                        <!-- Weather information would go here -->
+                        <div class="text-center">
+                            <i class="fas fa-sun fa-3x text-warning mb-3"></i>
+                            <h5>{{ destination.weather.temperature_high }}°C / {{ destination.weather.temperature_low }}°C</h5>
+                            <p>{{ destination.weather.weather_condition }}</p>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-3">
+                            <i class="fas fa-cloud fa-3x text-muted mb-3"></i>
+                            <p class="mb-0">Weather information not available</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-3">Popularity</h4>
+                    <div class="text-center">
+                        <div class="rating mb-3">
+                            {% for i in range(5) %}
+                                {% if destination.popularity and i < (destination.popularity / 20)|int %}
+                                <i class="fas fa-star fa-2x text-warning"></i>
+                                {% else %}
+                                <i class="far fa-star fa-2x text-warning"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <p class="mb-0">{{ destination.popularity or 0 }}/100 popularity score</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Reviews Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="mb-4" data-aos="fade-up">Reviews</h3>
+            
+            {% if reviews %}
+                {% for review in reviews %}
+                <div class="card border-0 shadow-sm mb-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="flex-shrink-0">
+                                <div class="avatar bg-primary text-white rounded-circle" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h5 class="mb-0">{{ review.user.username }}</h5>
+                                <div class="text-warning">
+                                    {% for i in range(5) %}
+                                        {% if i < review.rating %}
+                                        <i class="fas fa-star"></i>
+                                        {% else %}
+                                        <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <small class="text-muted">{{ review.review_date.strftime('%b %d, %Y') }}</small>
+                            </div>
+                        </div>
+                        <h5>{{ review.title }}</h5>
+                        <p class="mb-0">{{ review.content }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="card border-0 shadow-sm" data-aos="fade-up">
+                    <div class="card-body p-4 text-center">
+                        <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                        <h5>No reviews yet</h5>
+                        <p class="text-muted">Be the first to review this destination!</p>
+                        {% if current_user.is_authenticated %}
+                        <a href="#" class="btn btn-primary">Write a Review</a>
+                        {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login to Write a Review</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Map Section -->
+    <div class="row">
+        <div class="col-12">
+            <h3 class="mb-4" data-aos="fade-up">Location</h3>
+            <div class="card border-0 shadow-sm" data-aos="fade-up">
+                <div class="card-body p-0">
+                    {% if destination.latitude and destination.longitude %}
+                    <div id="map" style="height: 400px;"></div>
+                    {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-map-marked-alt fa-3x text-muted mb-3"></i>
+                        <h5>Map not available</h5>
+                        <p class="text-muted">Location coordinates are not provided for this destination.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if destination.latitude and destination.longitude %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // This is a placeholder for a map implementation
+        // In a real application, you would use a mapping library like Leaflet or Google Maps
+        const mapElement = document.getElementById('map');
+        if (mapElement) {
+            mapElement.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="fas fa-map-marked-alt fa-3x text-primary mb-3"></i>
+                    <h5>Map Placeholder</h5>
+                    <p>Coordinates: ${ {{ destination.latitude }} }, ${ {{ destination.longitude }} }</p>
+                    <p class="text-muted">In a real application, a map would be displayed here.</p>
+                </div>
+            `;
+        }
+    });
+</script>
+{% endif %}
+{% endblock %} 

@@ -1,0 +1,133 @@
+{% extends 'layout.html' %}
+
+{% block title %}Reviews - Personalized Trip Planner{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4" data-aos="fade-up">Traveler Reviews</h1>
+    
+    <!-- Filter Options -->
+    <div class="card border-0 shadow-sm mb-4" data-aos="fade-up">
+        <div class="card-body p-4">
+            <form action="{{ url_for('reviews.index') }}" method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label for="search" class="form-label">Search</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" id="search" name="search" placeholder="Search reviews..." value="{{ request.args.get('search', '') }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label for="rating" class="form-label">Minimum Rating</label>
+                    <select class="form-select" id="rating" name="rating">
+                        <option value="">All Ratings</option>
+                        <option value="5">5 Stars</option>
+                        <option value="4">4+ Stars</option>
+                        <option value="3">3+ Stars</option>
+                        <option value="2">2+ Stars</option>
+                        <option value="1">1+ Star</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="type" class="form-label">Review Type</label>
+                    <select class="form-select" id="type" name="type">
+                        <option value="">All Types</option>
+                        <option value="destination">Destinations</option>
+                        <option value="accommodation">Accommodations</option>
+                        <option value="transportation">Transportation</option>
+                        <option value="activity">Activities</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Reviews List -->
+    <div class="row">
+        <div class="col-12">
+            {% if reviews %}
+                {% for review in reviews %}
+                <div class="card border-0 shadow-sm mb-4" data-aos="fade-up" data-aos-delay="{{ loop.index * 100 }}">
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="flex-shrink-0">
+                                        <div class="avatar bg-primary text-white rounded-circle" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h5 class="mb-0">{{ review.user.username }}</h5>
+                                        <div class="text-warning">
+                                            {% for i in range(5) %}
+                                                {% if i < review.rating %}
+                                                <i class="fas fa-star"></i>
+                                                {% else %}
+                                                <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <small class="text-muted">{{ review.review_date.strftime('%b %d, %Y') }}</small>
+                                    </div>
+                                </div>
+                                <h4>{{ review.title }}</h4>
+                                <p>{{ review.content }}</p>
+                                
+                                {% if review.destination %}
+                                <p class="mb-0">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Review for 
+                                    <a href="{{ url_for('destinations.view', destination_id=review.destination.id) }}">{{ review.destination.name }}</a>
+                                </p>
+                                {% elif review.accommodation %}
+                                <p class="mb-0">
+                                    <i class="fas fa-hotel me-2"></i>Review for 
+                                    <a href="#">{{ review.accommodation.name }}</a>
+                                </p>
+                                {% elif review.transportation %}
+                                <p class="mb-0">
+                                    <i class="fas fa-plane me-2"></i>Review for 
+                                    <a href="#">{{ review.transportation.provider }}</a>
+                                </p>
+                                {% elif review.activity %}
+                                <p class="mb-0">
+                                    <i class="fas fa-hiking me-2"></i>Review for 
+                                    <a href="#">{{ review.activity.name }}</a>
+                                </p>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                {% if review.images %}
+                                <div class="review-images mt-3 mt-md-0">
+                                    {% set images = review.images.split(',') %}
+                                    {% for image in images %}
+                                    <img src="{{ image }}" alt="Review Image" class="img-fluid rounded mb-2" style="height: 150px; width: 100%; object-fit: cover;">
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="card border-0 shadow-sm" data-aos="fade-up">
+                    <div class="card-body p-5 text-center">
+                        <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                        <h4>No reviews found</h4>
+                        <p class="text-muted">No public reviews match your criteria.</p>
+                        {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('trips.index') }}" class="btn btn-primary mt-3">Browse Your Trips to Write Reviews</a>
+                        {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary mt-3">Login to Write Reviews</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

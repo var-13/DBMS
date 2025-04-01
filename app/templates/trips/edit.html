@@ -1,0 +1,129 @@
+{% extends "layout.html" %}
+
+{% block title %}Edit Trip - Personalized Trip Planner{% endblock %}
+
+{% block styles %}
+<style>
+    .form-label {
+        font-weight: 500;
+    }
+    .required-text {
+        color: #dc3545;
+        font-size: 0.875rem;
+    }
+    .required::after {
+        content: " *";
+        color: #dc3545;
+    }
+    .form-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="h3 mb-0">Edit Trip</h1>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('trips.edit', trip_id=trip.id) }}" method="POST">
+                        <div class="mb-3">
+                            <label for="title" class="form-label required">Trip Title</label>
+                            <input type="text" class="form-control" id="title" name="title" value="{{ trip.title }}" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3">{{ trip.description }}</textarea>
+                            <div class="form-text">Briefly describe your trip (optional)</div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="start_date" class="form-label required">Start Date</label>
+                                <input type="date" class="form-control" id="start_date" name="start_date" value="{{ trip.start_date.strftime('%Y-%m-%d') }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="end_date" class="form-label required">End Date</label>
+                                <input type="date" class="form-control" id="end_date" name="end_date" value="{{ trip.end_date.strftime('%Y-%m-%d') }}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="total_budget" class="form-label">Total Budget</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="total_budget" name="total_budget" value="{{ trip.total_budget or '' }}" min="0" step="0.01">
+                            </div>
+                            <div class="form-text">Set an estimated budget for your trip (optional)</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="status" class="form-label required">Trip Status</label>
+                            <select class="form-select" id="status" name="status" required>
+                                <option value="planned" {% if trip.status == 'planned' %}selected{% endif %}>Planned</option>
+                                <option value="ongoing" {% if trip.status == 'ongoing' %}selected{% endif %}>Ongoing</option>
+                                <option value="completed" {% if trip.status == 'completed' %}selected{% endif %}>Completed</option>
+                                <option value="cancelled" {% if trip.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_public" name="is_public" {% if trip.is_public %}checked{% endif %}>
+                                <label class="form-check-label" for="is_public">
+                                    Make this trip public
+                                </label>
+                                <div class="form-text">Public trips can be viewed by other users</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="notes" class="form-label">Trip Notes</label>
+                            <textarea class="form-control" id="notes" name="notes" rows="4">{{ trip.notes or '' }}</textarea>
+                            <div class="form-text">Add any additional notes or reminders for your trip (optional)</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('trips.view', trip_id=trip.id) }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get date input elements
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+        
+        // Add event listener to start date
+        startDateInput.addEventListener('change', function() {
+            // If end date is before start date, update end date to match start date
+            if (endDateInput.value < startDateInput.value) {
+                endDateInput.value = startDateInput.value;
+            }
+            // Update end date min attribute
+            endDateInput.min = startDateInput.value;
+        });
+        
+        // Set initial min attribute for end date
+        endDateInput.min = startDateInput.value;
+    });
+</script>
+{% endblock %} 
