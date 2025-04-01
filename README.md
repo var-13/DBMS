@@ -118,6 +118,5 @@ This project is licensed under the MIT License.
 
 ## **Contact**  
 
-📧 Email: your-email@example.com  
-🔗 GitHub: [Your GitHub Profile](https://github.com/var-13)  
+
 
